@@ -1,7 +1,6 @@
-# time
-Timetracking Tool
+# Timetracking Tool
 
-# install
+## install
 * database_schema.sql needs a database
 * app/config core, database and email needs to be changed
 * chmod -R 777 app/tmp
