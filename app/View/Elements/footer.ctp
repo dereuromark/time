@@ -1,0 +1,1 @@
+<span class="pull-right">Entwicklung Ticketsystem & Fotos des Abiballs durch <a href="http://www.brove.de">brove.de</a></span>

@@ -1,0 +1,39 @@
+#container {
+    text-align: left;
+}
+
+#header {
+    margin-top: 0em;
+    padding: 0px 0px;
+}
+
+#content {
+    clear: both;
+    padding: 0px;
+    background-color: #fff;
+    color: #333;
+}
+
+#footer {
+    clear: both;
+    padding: 0px 0px;
+    text-align: right;
+}
+
+h2.startbar-headline {
+    display: none;
+}
+
+form {
+    margin-top: 0px;
+}
+
+form div {
+    vertical-align: text-top;
+    margin-left: 0px;
+
+}
+
+
+
+
