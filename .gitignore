@@ -1,9 +1,10 @@
-app/tmp/*
-app/[Cc]onfig/core.php
-app/[Cc]onfig/database.php
-app/[Cc]onfig/email.php
+tmp/*
+Config/database.php
+Config/email.php
+Plugin/*
 !empty
 .idea
 atlassian-ide-plugin.xml
-vendor
+vendor/*
 composer.lock
+/Config/configs_private.php
