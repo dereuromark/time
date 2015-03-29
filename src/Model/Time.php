@@ -1,4 +1,6 @@
 <?php
+namespace App\Model;
+
 App::uses('AppModel', 'Model');
 
 class Time extends AppModel {

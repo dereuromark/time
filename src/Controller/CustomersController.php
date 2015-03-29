@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Controller;
+
 class CustomersController extends AppController {
 
 	public $helpers = ['Html', 'Form'];

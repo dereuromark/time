@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Controller;
+
 class TimesController extends AppController {
 
 
