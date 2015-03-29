@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Controller\AppController;
+
 class CustomersController extends AppController {
 
 	public $helpers = ['Html', 'Form'];

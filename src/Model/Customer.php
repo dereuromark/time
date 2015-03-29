@@ -1,7 +1,7 @@
 <?php
 namespace App\Model;
 
-App::uses('AppModel', 'Model');
+use App\Model\AppModel;
 
 class Customer extends AppModel {
 

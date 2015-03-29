@@ -20,8 +20,9 @@
  */
 namespace App\Controller;
 
+use Cake\Controller\Controller;
+use Cake\Core\Plugin;
 
-App::uses('Controller', 'Controller');
 
 /**
  * Application Controller
@@ -36,7 +37,7 @@ class AppController extends Controller {
 	public $curr_user = null;
 
 	public function constructClasses() {
-		if (CakePlugin::loaded('DebugKit')) {
+		if (Plugin::loaded('DebugKit')) {
 			$this->components['DebugKit.Toolbar'] =  [];
 		}
 		parent::constructClasses();

@@ -36,13 +36,13 @@ Configure::write('debug', $debug ? 2 : 0);
 /**
  * Configure the Error handler used to handle errors for your application. By default
  * ErrorHandler::handleError() is used. It will display errors using Debugger, when debug > 0
- * and log errors with CakeLog when debug = 0.
+ * and log errors with Log when debug = 0.
  *
  * Options:
  *
  * - `handler` - callback - The callback to handle errors. You can set this to any callable type,
  *   including anonymous functions.
- *   Make sure you add App::uses('MyHandler', 'Error'); when using a custom handler class
+ *   Make sure you add use App\Error\MyHandler; when using a custom handler class
  * - `level` - integer - The level of errors you are interested in capturing.
  * - `trace` - boolean - Include stack traces for errors in log files.
  *
@@ -64,7 +64,7 @@ Configure::write('debug', $debug ? 2 : 0);
  *
  * - `handler` - callback - The callback to handle exceptions. You can set this to any callback type,
  *   including anonymous functions.
- *   Make sure you add App::uses('MyHandler', 'Error'); when using a custom handler class
+ *   Make sure you add use App\Error\MyHandler; when using a custom handler class
  * - `renderer` - string - The class responsible for rendering uncaught exceptions. If you choose a custom class you
  *   should place the file for that class in app/Lib/Error. This class needs to implement a render method.
  * - `log` - boolean - Should Exceptions be logged?
@@ -198,7 +198,7 @@ Configure::write('debug', $debug ? 2 : 0);
  *    that can be used with `session_save_handler`. Using this option will automatically add `session.save_handler`
  *    to the ini array.
  * - `Session.autoRegenerate` - Enabling this setting, turns on automatic renewal of sessions, and
- *    sessionids that change frequently. See CakeSession::$requestCountdown.
+ *    sessionids that change frequently. See Session::$requestCountdown.
  * - `Session.ini` - An associative array of additional ini values to set.
  *
  * The built in defaults are:
@@ -209,7 +209,7 @@ Configure::write('debug', $debug ? 2 : 0);
  * - 'cache' - Use the Cache class to save sessions.
  *
  * To define a custom session handler, save it at /app/Model/Datasource/Session/<name>.php.
- * Make sure the class implements `CakeSessionHandlerInterface` and set Session.handler to <name>
+ * Make sure the class implements `SessionHandlerInterface` and set Session.handler to <name>
  *
  * To use database sessions, run the app/Config/Schema/sessions.php schema using
  * the cake shell command: cake schema create Sessions
@@ -272,7 +272,7 @@ Configure::write('debug', $debug ? 2 : 0);
 
 /**
  * `Config.timezone` is available in which you can set users' timezone string.
- * If a method of CakeTime class is called with $timezone parameter as null and `Config.timezone` is set,
+ * If a method of Time class is called with $timezone parameter as null and `Config.timezone` is set,
  * then the value of `Config.timezone` will be used. This feature allows you to set users' timezone just
  * once instead of passing it each time in function calls.
  */

@@ -20,8 +20,8 @@
  */
 namespace App\View\Helper;
 
+use Cake\View\Helper;
 
-App::uses('Helper', 'View');
 
 /**
  * Application helper
