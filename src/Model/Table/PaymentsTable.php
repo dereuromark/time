@@ -1,9 +1,9 @@
 <?php
-namespace App\Model;
+namespace App\Model\Table;
 
-use App\Model\AppModel;
+use Cake\ORM\Table;
 
-class Payment extends AppModel {
+class PaymentsTable extends Table {
 
 	public $belongsTo = [
 		'User' =>

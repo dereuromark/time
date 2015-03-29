@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\Table;
 
-use App\Model\AppModel;
+use Cake\ORM\Table;
 
-class User extends AppModel {
+class UsersTable extends Table {
 
 	public $displayField = 'name';
 
