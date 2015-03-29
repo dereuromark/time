@@ -14,14 +14,13 @@
 	],
 	"require":{
 		"php": ">=5.4",
-		"cakephp/cakephp": "2.6.*",
-		"dereuromark/cakephp-tools": "dev-master"
+		"cakephp/cakephp": "3.0.*",
+		"dereuromark/cakephp-tools": "dev-cake3"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "3.7.*",
+		"phpunit/phpunit": "4.*",
 		"cakephp/debug_kit": "dev-master",
-		"dereuromark/cakephp-codesniffer": "dev-master",
-		"dereuromark/cakephp-upgrade": "dev-master"
+		"dereuromark/cakephp-upgrade": "dev-cake3"
 	},
 	"preferred-install": "source",
 	"minimum-stability": "dev",
