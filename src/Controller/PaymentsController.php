@@ -3,14 +3,14 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Event\Event;
 
 class PaymentsController extends AppController {
 
-
 	public $helpers = ['Html', 'Form'];
 
-	public function beforeFilter() {
-		parent::beforeFilter();
+	public function beforeFilter(Event $event) {
+		parent::beforeFilter($event);
 		if ($this->groupid != 1) {
 			return $this->flash('You are not allowed to use this function', '/times/index');
 			exit(0);

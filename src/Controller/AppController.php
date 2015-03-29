@@ -22,7 +22,7 @@ namespace App\Controller;
 
 use Cake\Controller\Controller;
 use Cake\Core\Plugin;
-
+use Cake\Event\Event;
 
 /**
  * Application Controller
@@ -36,14 +36,14 @@ class AppController extends Controller {
 
 	public $curr_user = null;
 
-	public function constructClasses() {
+	public function initialize() {
 		if (Plugin::loaded('DebugKit')) {
 			$this->components['DebugKit.Toolbar'] =  [];
 		}
 		parent::constructClasses();
 	}
 
-	public function beforeFilter() {
+	public function beforeFilter(Event $event) {
 		if (!env("REMOTE_USER")) {
 			throw new NotFoundException('No User auth');
 		}
