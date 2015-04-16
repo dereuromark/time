@@ -3,11 +3,11 @@
 
 	<dl>
 		<dt>Name</dt>
-		<dd>&nbsp;<?php echo $Customer['Customer']['name'] ?></dd>
+		<dd>&nbsp;<?php echo $Customer['name'] ?></dd>
 		<dt>Description</dt>
-		<dd>&nbsp;<?php echo $Customer['Customer']['description'] ?></dd>
+		<dd>&nbsp;<?php echo $Customer['description'] ?></dd>
 		<dt>Created</dt>
-		<dd>&nbsp;<?php echo $Customer['Customer']['created'] ?></dd>
+		<dd>&nbsp;<?php echo $Customer['created'] ?></dd>
 	</dl>
 
 

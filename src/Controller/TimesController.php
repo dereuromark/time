@@ -3,31 +3,34 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Network\Exception\NotFoundException;
 
 class TimesController extends AppController {
 
-
 	public $helpers = ['Html', 'Form'];
-	public $uses = ['Time', 'Payment', 'User'];
+
+	public $modelClass = 'Times';
 
 	public function index($count = 30) {
-
-		$this->Time->recursive = 0;
-		/* Wenn schon gestartet, dann Werte in Stop-Formular ausgeben */
-		if ($this->Time->hasAny("Time.user_id = '" . $this->userid . "' AND Time.stop = '0000-00-00 00:00:00'")) {
-			$this->set('startedTime', 1);
-			$this->request->data = $this->Time->find(
-				'first',
-				['conditions' => "Time.user_id = '" . $this->userid . "' AND Time.stop = '0000-00-00 00:00:00'"]
-			);
+		if ($task = $this->request->query('task')) {
+			$this->request->data['task'] = $task;
 		}
-		$customers = $this->Time->Customer->find('list');
-		$users = $this->User->find('list');
+
+		/* Wenn schon gestartet, dann Werte in Stop-Formular ausgeben */
+		$conditions = "user_id = '" . $this->userid . "' AND stop IS null";
+		$time = $this->Times->find()->where($conditions)->first();
+
+		if ($time) {
+			$this->set('startedTime', 1);
+			//$this->request->data = $result;
+		}
+		$customers = $this->Times->Customers->find('list');
+		$users = $this->Times->Users->find('list');
 
 		if ($this->groupid == 1) {
 			foreach ($users as $id => $username) {
-				$statistics[$username]['Time'] = $this->Time->statistics($id);
-				$statistics[$username]['Payment'] = $this->Payment->statistics($id);
+				$statistics[$username]['Time'] = $this->Times->statistics($id);
+				$statistics[$username]['Payment'] = $this->Times->Users->Payments->statistics($id);
 			}
 			$params = [
 				'order' => 'start DESC',
@@ -41,8 +44,8 @@ class TimesController extends AppController {
 				'order' => 'start DESC',
 				'limit' => intval($count)
 			];
-			$statistics[$users[$this->userid]]['Time'] = $this->Time->statistics($this->userid);
-			$statistics[$users[$this->userid]]['Payment'] = $this->Payment->statistics($this->userid);
+			$statistics[$users[$this->userid]]['Time'] = $this->Times->statistics($this->userid);
+			$statistics[$users[$this->userid]]['Payment'] = $this->Times->Users->Payments->statistics($this->userid);
 		}
 
 		$userId = $this->request->query('user_id');
@@ -51,7 +54,7 @@ class TimesController extends AppController {
 		}
 
 		if ($userId) {
-			$params['conditions']['Time.user_id'] = $userId;
+			$params->conditions['Time.user_id'] = $userId;
 		}
 
 		$customerId = (int)$this->request->query('customer_id');
@@ -60,41 +63,46 @@ class TimesController extends AppController {
 		}
 
 		if ($customerId) {
-			$params['conditions']['Time.customer_id'] = $customerId;
+			$params->conditions['Time.customer_id'] = $customerId;
 			$this->set(
 				'projectstatistics',
-				$this->Time->projectstatistics($customerId)
+				$this->Times->projectstatistics($customerId)
 			);
-			$this->set('monthly_stats', $this->Time->monthly_stats($customerId));
+			$this->set('monthly_stats', $this->Times->monthly_stats($customerId));
 		} else {
-			$this->set('projectstatistics', $this->Time->projectstatistics('all'));
-			$this->set('monthly_stats', $this->Time->monthly_stats('all'));
+			$this->set('projectstatistics', $this->Times->projectstatistics('all'));
+			$this->set('monthly_stats', $this->Times->monthly_stats('all'));
 		}
+		$params['contain'][] = 'Users';
 
-		$times = $this->Time->find('all', $params);
+		$times = $this->Times->find('all', $params);
 
-		$this->set('customers', $customers);
-		$this->set('users', $users);
-		$this->set('times', $times);
+		$this->set('customers', $customers->toArray());
+		$this->set('users', $users->toArray());
+		$this->set('times', $times->toArray());
 		$this->set('statistics', $statistics);
+
+		if (!$time) {
+			$time = $this->Times->newEntity();
+		}
+		$this->set(compact('time'));
 	}
 
 	public function index_customer($customer, $count = 30) {
-		$this->Time->recursive = 0;
+		//$this->Times->recursive = 0;
 		/* Wenn schon gestartet, dann Werte in Stop-Formular ausgeben */
-		if ($this->Time->hasAny("Time.user_id = '" . $this->userid . "' AND Time.stop = '0000-00-00 00:00:00'")) {
+		$conditions = "Times.user_id = '" . $this->userid . "' AND Times.stop IS NULL";
+		$result = $this->Times->find('first', ['conditions' => $conditions]);
+		if ($result) {
 			$this->set('startedTime', 1);
-			$this->request->data = $this->Time->find(
-				'first',
-				['conditions' => "User.id = '" . $this->userid . "' AND Time.stop = '0000-00-00 00:00:00'"]
-			);
+			$this->request->data = $result;
 		}
-		$this->set('customers', $this->Time->Customer->find('list'));
+		$this->set('customers', $this->Times->Customers->find('list'));
 
 		if ($this->groupid == 1) {
 			$this->set(
 				'times',
-				$this->Time->find(
+				$this->Times->find(
 					'all',
 					[
 						'conditions' => [
@@ -108,12 +116,12 @@ class TimesController extends AppController {
 		} else {
 			$this->set(
 				'times',
-				$this->Time->find(
+				$this->Times->find(
 					'all',
 					[
 						'conditions' => [
-							'Customer.id' => $customer,
-							'Time.user_id' => $this->userid,
+							'Customers.id' => $customer,
+							'Times.user_id' => $this->userid,
 						],
 						'order' => 'start DESC',
 						'limit' => intval($count)
@@ -122,147 +130,154 @@ class TimesController extends AppController {
 			);
 		}
 
-		$statistics['Marco']['Time'] = $this->Time->statistics(1);
-		$statistics['Markus']['Time'] = $this->Time->statistics(2);
-		$statistics['Stefan']['Time'] = $this->Time->statistics(3);
-		$statistics['David']['Time'] = $this->Time->statistics(4);
+		$statistics->marco['Time'] = $this->Times->statistics(1);
+		$statistics->markus['Time'] = $this->Times->statistics(2);
+		$statistics->stefan['Time'] = $this->Times->statistics(3);
+		$statistics->david['Time'] = $this->Times->statistics(4);
 
-		$statistics['Marco']['Payment'] = $this->Payment->statistics(1);
-		$statistics['Markus']['Payment'] = $this->Payment->statistics(2);
-		$statistics['Stefan']['Payment'] = $this->Payment->statistics(3);
-		$statistics['David']['Payment'] = $this->Payment->statistics(4);
+		$statistics->marco['Payment'] = $this->Times->Users->Payments->statistics(1);
+		$statistics->markus['Payment'] = $this->Times->Users->Payments->statistics(2);
+		$statistics->stefan['Payment'] = $this->Times->Users->Payments->statistics(3);
+		$statistics->david['Payment'] = $this->Times->Users->Payments->statistics(4);
 
-		$this->set('projectstatistics', $this->Time->projectstatistics($customer));
-		$this->set('monthly_stats', $this->Time->monthly_stats($customer));
+		$this->set('projectstatistics', $this->Times->projectstatistics($customer));
+		$this->set('monthly_stats', $this->Times->monthly_stats($customer));
 
 		$this->set('statistics', $statistics);
 	}
 
 	public function start() {
+		$this->request->allowMethod('post');
+
 		/* Check if entry already exists */
-		if ($this->Time->hasAny("Time.user_id = '" . $this->userid . "' AND Time.stop = '0000-00-00 00:00:00'")) {
-			return $this->flash('Du arbeitest doch schon', '/times/index');
-			exit();
+		$conditions = "Times.user_id = '" . $this->userid . "' AND Times.stop IS null";
+		$result = $this->Times->find('first', ['conditions' => $conditions]);
+		if (!$result) {
+			$this->Flash->error('Du arbeitest doch schon');
+			return $this->redirect('/times/index');
 		}
 
-		$this->request->data['Time']['user_id'] = $this->userid;
-		$this->request->data['Time']['start'] = date('Y-m-d H:i:s');
-		$this->request->data['Time']['break'] = 0;
+		$time = $this->Times->newEntity();
+		$this->request->data['user_id'] = $this->userid;
+		$this->request->data['start'] = date('Y-m-d H:i:s');
+		$this->request->data['break'] = 0;
 
-		if ($this->Time->save($this->request->data)) {
-			$this->Session->setFlash('Started, Wohoo!', 'message_ok');
+		$entity = $this->Times->patchEntity($time, $this->request->data);
+		if ($this->Times->save($entity)) {
+			$this->Flash->success('Started, Wohoo!');
 			return $this->redirect('/times/index');
 		} else {
-			$this->Session->setFlash('Please correct errors below.', 'message_error');
-			$this->set('users', $this->Time->User->find('list'));
-			$this->set('customers', $this->Time->Customer->find('list'));
+			$this->Flash->error('Please correct errors below.');
+			//$this->set('users', $this->Times->Users->find('list'));
+			//$this->set('customers', $this->Times->Customers->find('list'));
 			return $this->redirect('/times/index');
 		}
+		//$this->set(compact('time'));
 	}
 
 	public function stop() {
-		$db_entry = $this->Time->find(
+		$time = $this->Times->find(
 			'first',
 			[
-				'conditions' => "Time.user_id = '" . $this->userid . "' AND Time.stop = '0000-00-00 00:00:00'",
+				'conditions' => "Times.user_id = '" . $this->userid . "' AND Times.stop IS NULL",
 				'fields' => ['id']
 			]
 		);
+		if (!$time) {
+			throw new NotFoundException();
+		}
 
-		$this->request->data['Time'] = array_merge($this->request->data['Time'], $db_entry['Time']);
-		$this->request->data['Time']['stop'] = date('Y-m-d H:i:s');
-		if ($this->Time->save($this->request->data)) {
-			$this->Session->setFlash('Stopped, Wohoo!', 'message_ok');
+		$this->request->data['stop'] = date('Y-m-d H:i:s');
+		$time = $this->Times->patchEntity($time, $this->request->data);
+		if ($this->Times->save($time)) {
+			$this->Flash->success('Stopped, Wohoo!');
 			return $this->redirect('/times/index');
 		} else {
-			$this->Session->setFlash('Please correct errors below.', 'message_error');
-			$this->set('users', $this->Time->User->find('list'));
-			$this->set('customers', $this->Time->Customer->find('list'));
+			$this->Flash->error('Please correct errors below.');
+			//$this->set('users', $this->Times->User->find('list'));
+			//$this->set('customers', $this->Times->Customers->find('list'));
 			return $this->redirect('/times/index');
 		}
 	}
 
 	public function edit($id = null) {
 		if (empty($this->request->data)) {
-			if (!$id || !$this->Time->hasAny("Time.id = $id AND Time.user_id = $this->userid")) {
-				$this->Session->setFlash('Invalid id for Time', 'message_error');
+			$conditions = "Times.id = $id AND Times.user_id = $this->userid";
+			if (!$id || !($record = $this->Times->find('first', ['conditions' => $conditions]))) {
+				$this->Flash->error('Invalid id for Time');
 				return $this->redirect('/times/index');
 			}
-			if (!$this->Time->hasAny("Time.id = $id AND Time.start > DATE_SUB(CURRENT_DATE, INTERVAL 4 DAY) ")) {
-				$this->Session->setFlash('Entry too old', 'message_error');
+			$conditions = "Times.id = $id AND Times.start > DATE_SUB(CURRENT_DATE, INTERVAL 4 DAY) ";
+			$time = $this->Times->find('first', ['conditions' => $conditions]);
+			if (!$time) {
+				$this->Flash->error('Entry too old');
 				return $this->redirect('/times/index');
 			}
-			$this->request->data = $this->Time->find(
-				'first',
-				['conditions' => "Time.id = $id AND Time.user_id = $this->userid"]
-			);
+			$this->request->data = $record;
 
-		} elseif ($this->Time->hasAny(
-			"Time.id = $id AND Time.user_id = $this->userid AND Time.start > DATE_SUB(CURRENT_DATE, INTERVAL 4 DAY) "
-		)
+		} elseif ($this->Times->find('first', [
+			'conditions' =>
+				"Times.id = $id AND Times.user_id = $this->userid AND Times.start > DATE_SUB(CURRENT_DATE, INTERVAL 4 DAY) "
+			])
 		) {
 			// Only own ids
 			$this->request->data['Time']['id'] = $id;
 			$this->request->data['Time']['user_id'] = $this->userid;
 
 			if (strtotime($this->request->data['Time']['start']) - strtotime('-5 days') < 0) {
-				$this->Session->setFlash('Entry gets too old', 'message_error');
+				$this->Flash->error('Entry gets too old');
 				return $this->redirect('/times/index');
 			}
-			if ($this->Time->save($this->request->data)) {
-				$this->Session->setFlash('The Time has been saved', 'message_ok');
+			if ($this->Times->save($entity)) {
+				$this->Flash->success('The Time has been saved');
 				return $this->redirect('/times/index');
 			} else {
-				$this->Session->setFlash('Please correct errors below.', 'message_error');
+				$this->Flash->error('Please correct errors below.');
 			}
 		}
 
-		$this->set('customers', $this->Time->Customer->find('list'));
+		$this->set('customers', $this->Times->Customers->find('list'));
 	}
 
 	public function delete($id = null) {
-		if (!$id || !$this->Time->hasAny("Time.id = $id AND Time.user_id = $this->userid")) {
-			$this->Session->setFlash('Invalid id for Time', 'message_error');
+		if (!$id || !($record = $this->Times->find('first', ['conditions' => "Times.id = $id AND Times.user_id = $this->userid"]))) {
+			$this->Flash->error('Invalid id for Time');
 			return $this->redirect('/times/index');
 		}
-		if ($this->Time->hasAny("Time.id = $id AND Time.user_id = $this->userid") && $this->Time->delete($id)) {
-			$this->Session->setFlash('The Time deleted: id ' . $id, 'message_ok');
+		if ($this->Times->delete($times)) {
+			$this->Flash->success('The Time deleted: id ' . $id);
 			return $this->redirect('/times/index');
 		}
 	}
 
 	public function export($count = 100, $user = null) {
 		$this->layout = 'plain';
-		$this->Time->recursive = 0;
+		//$this->Times->recursive = 0;
 		/* Wenn schon gestartet, dann Werte in Stop-Formular ausgeben */
-		if ($this->Time->hasAny("Time.user_id = '" . $this->userid . "' AND Time.stop = '0000-00-00 00:00:00'")) {
+		$conditions = "Times.user_id = '" . $this->userid . "' AND Times.stop IS NULL";
+		$time = $this->Times->find('first', ['conditions' => $conditions]);
+		if ($time) {
 			$this->set('startedTime', 1);
-			$this->request->data = $this->Time->find(
-				'first',
-				['conditions' => "Time.user_id = '" . $this->userid . "' AND Time.stop = '0000-00-00 00:00:00'"]
-			);
+			$this->request->data = $time;
 		}
-		$this->set('customers', $this->Time->Customer->find('list'));
+		$this->set('customers', $this->Times->Customers->find('list'));
 
 		if ($this->groupid == 1 && $user == null) {
-			$this->set('times', $this->Time->findAll(null, null, 'start DESC', intval($count)));
+			$this->set('times', $this->Times->find('all', ['order' => 'start DESC']));
 		} elseif ($this->groupid == 1 && $user != null) {
-			$this->set('times', $this->Time->findAll("Time.user_id = $user", null, 'start DESC', intval($count)));
+			$this->set('times', $this->Times->find('all', ['conditions' => "Times.user_id = $user", 'order' => 'start DESC']));
 		} else {
 			$this->set(
 				'times',
-				$this->Time->findAll("Time.user_id = $this->userid", null, 'start DESC', intval($count))
+				$this->Times->find('all', ['conditions' => "Times.user_id = $this->userid", 'order' => 'start DESC'])
 			);
 		}
-
 	}
 
 	public function export_customer($customer) {
 		$this->layout = 'plain';
-		$this->Time->recursive = 0;
+		//$this->Times->recursive = 0;
 
-		$this->set('times', $this->Time->findAll("Customer.id = $customer", null, 'start DESC', intval($count)));
+		$this->set('times', $this->Times->find('all', ['conditions' => "Customer.id = $customer", 'order' => 'start DESC']));
 	}
 }
-
-?>

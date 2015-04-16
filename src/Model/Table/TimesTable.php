@@ -1,9 +1,7 @@
 <?php
 namespace App\Model\Table;
 
-use Cake\ORM\Table;
-
-class TimesTable extends Table {
+class TimesTable extends AppTable {
 
 	public $belongsTo = [
 		'User' => [
@@ -22,6 +20,14 @@ class TimesTable extends Table {
 
 	public function statistics($userid) {
 		$heute = getdate();
+		$query = $this->find()->where("start >= '" . $heute['year'] . '-' . sprintf("%02s", $heute['mon']) . '-01 00:00:00' . "' AND
+		user_id = $userid AND
+		stop != '0000-00-00 00:00:00'");
+
+		$sum = $query->func()->sum('((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break)');
+		$query->select(['this_month' => $sum]);
+
+		/*
 		$stats = $this->query(
 			"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as this_month FROM `times`
 						WHERE
@@ -29,8 +35,15 @@ class TimesTable extends Table {
 			user_id = $userid AND
 			stop != '0000-00-00 00:00:00'"
 		);
-		$return['this_month'] = $stats[0][0]['this_month'];
+		*/
+		$stats = $query->toArray();
+		$return['this_month'] = $stats[0]['this_month'];
 
+		$query = $this->find()->where("start < '" . $heute['year'] . '-' . sprintf("%02s", $heute['mon']) . '-01 00:00:00' . "' AND
+			start >=  '" . $heute['year'] . '-' . (sprintf("%02s", $heute['mon']) - 1) . '-01 00:00:00' . "' AND
+			user_id = $userid");
+		$query->select(['last_month' => $sum]);
+		/*
 		$stats = $this->query(
 			"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as last_month FROM `times`
 						WHERE
@@ -38,8 +51,15 @@ class TimesTable extends Table {
 			start >=  '" . $heute['year'] . '-' . (sprintf("%02s", $heute['mon']) - 1) . '-01 00:00:00' . "' AND
 			user_id = $userid"
 		);
-		$return['last_month'] = $stats[0][0]['last_month'];
+		*/
+		$stats = $query->toArray();
+		$return['last_month'] = $stats[0]['last_month'];
 
+		$query = $this->find()->where("start < '" . ($heute['year'] - 1) . "-12-31 23:59:59' AND
+		start > '" . ($heute['year'] - 1) . "-01-01 00:00:00' AND
+		user_id = $userid");
+		$query->select(['last_year' => $sum]);
+		/*
 		$stats = $this->query(
 			"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as last_year FROM `times`
 						WHERE
@@ -47,8 +67,15 @@ class TimesTable extends Table {
 			start > '" . ($heute['year'] - 1) . "-01-01 00:00:00' AND
 			user_id = $userid"
 		);
-		$return['last_year'] = $stats[0][0]['last_year'];
+		*/
+		$stats = $query->toArray();
+		$return['last_year'] = $stats[0]['last_year'];
 
+		$query = $this->find()->where("start >= '" . $heute['year'] . '-01-01 00:00:00' . "' and
+			user_id = $userid AND
+			stop != '0000-00-00 00:00:00'");
+		$query->select(['last_year' => $sum]);
+		/*
 		$stats = $this->query(
 			"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as year FROM `times`
 						WHERE
@@ -56,15 +83,22 @@ class TimesTable extends Table {
 			user_id = $userid AND
 			stop != '0000-00-00 00:00:00'"
 		);
-		$return['year'] = $stats[0][0]['year'];
+		*/
+		$stats = $query->toArray();
+		$return['year'] = $stats[0]['year'];
 
+		$query = $this->find()->where("user_id = $userid AND stop != '0000-00-00 00:00:00'");
+		$query->select(['life' => $sum]);
+		/*
 		$stats = $this->query(
 			"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as life FROM `times`
 			WHERE
 			user_id = $userid AND
 			stop != '0000-00-00 00:00:00'"
 		);
-		$return['life'] = $stats[0][0]['life'];
+		*/
+		$stats = $query->toArray();
+		$return['life'] = $stats[0]['life'];
 
 		return $return;
 	}
@@ -99,7 +133,8 @@ class TimesTable extends Table {
 			);
 
 			return $stats;
-		} elseif (is_numeric($data)) {
+		}
+		if (is_numeric($data)) {
 			$heute = getdate();
 			$stats['this_month'] = $this->query(
 				"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`, customer_id, task FROM `times` Where customer_id = $data and
@@ -128,11 +163,9 @@ class TimesTable extends Table {
 
 			return $stats;
 		}
-
 	}
 
 	public function monthly_stats($data) {
-
 		if ($data === 'all') {
 			$stats = $this->query(
 				"SELECT

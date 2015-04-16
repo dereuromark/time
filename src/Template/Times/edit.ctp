@@ -13,7 +13,7 @@
 		];
 
 		echo $this->Form->create(
-			'Time',
+			$time,
 			[
 				'url' => [
 					'action' => 'edit',

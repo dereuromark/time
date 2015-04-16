@@ -3,28 +3,28 @@
 
 	<dl>
 		<dt>Id</dt>
-		<dd>&nbsp;<?php echo $time['Time']['id'] ?></dd>
+		<dd>&nbsp;<?php echo $time['id'] ?></dd>
 		<dt>User</dt>
-		<dd>&nbsp;<?php echo $html->link($time['User']['name'], '/users/view/' . $time['User']['id']) ?></dd>
+		<dd>&nbsp;<?php echo $html->link($time->user['name'], '/users/view/' . $time->user['id']) ?></dd>
 		<dt>Start</dt>
-		<dd>&nbsp;<?php echo $time['Time']['start'] ?></dd>
+		<dd>&nbsp;<?php echo $time['start'] ?></dd>
 		<dt>Stop</dt>
-		<dd>&nbsp;<?php echo $time['Time']['stop'] ?></dd>
+		<dd>&nbsp;<?php echo $time['stop'] ?></dd>
 		<dt>Break</dt>
-		<dd>&nbsp;<?php echo $time['Time']['break'] ?></dd>
+		<dd>&nbsp;<?php echo $time['break'] ?></dd>
 		<dt>Task</dt>
-		<dd>&nbsp;<?php echo $time['Time']['task'] ?></dd>
+		<dd>&nbsp;<?php echo $time['task'] ?></dd>
 		<dt>Customer</dt>
 		<dd>&nbsp;<?php echo $html->link(
-				$time['Customer']['name'],
-				'/customers/view/' . $time['Customer']['id']
+				$time->customer['name'],
+				'/customers/view/' . $time->customer['id']
 			) ?></dd>
 		<dt>Note</dt>
-		<dd>&nbsp;<?php echo $time['Time']['note'] ?></dd>
+		<dd>&nbsp;<?php echo $time['note'] ?></dd>
 		<dt>Created</dt>
-		<dd>&nbsp;<?php echo $time['Time']['created'] ?></dd>
+		<dd>&nbsp;<?php echo $time['created'] ?></dd>
 		<dt>Modified</dt>
-		<dd>&nbsp;<?php echo $time['Time']['modified'] ?></dd>
+		<dd>&nbsp;<?php echo $time['modified'] ?></dd>
 	</dl>
 
 </div>

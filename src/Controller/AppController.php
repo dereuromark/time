@@ -20,7 +20,7 @@
  */
 namespace App\Controller;
 
-use Cake\Controller\Controller;
+use Shim\Controller\Controller;
 use Cake\Core\Plugin;
 use Cake\Event\Event;
 
@@ -36,11 +36,17 @@ class AppController extends Controller {
 
 	public $curr_user = null;
 
+	public $components = ['Flash'];
+
+	public $helpers = [
+		'Html' => ['className' => 'BootstrapUI.Html'],
+		'Form' => ['className' => 'BootstrapUI.Form'],
+		//'Flash' => ['className' => 'BootstrapUI.Flash'],
+		'Paginator' => ['className' => 'BootstrapUI.Paginator']
+	];
+
 	public function initialize() {
-		if (Plugin::loaded('DebugKit')) {
-			$this->components['DebugKit.Toolbar'] =  [];
-		}
-		parent::constructClasses();
+		parent::initialize();
 	}
 
 	public function beforeFilter(Event $event) {
@@ -48,27 +54,23 @@ class AppController extends Controller {
 			throw new NotFoundException('No User auth');
 		}
 
-		$this->loadModel('User');
-		$this->curr_user = $this->User->findByName(env("REMOTE_USER"));
-		if ($this->curr_user) {
-			$this->userid = $this->curr_user['User']['id'];
-			$this->groupid = $this->curr_user['Group']['id'];
+		$this->loadModel('Users');
+		$this->curr_user = $this->Users->find()->where(['name' => env("REMOTE_USER")])->first();
+		if (count($this->curr_user)) {
+			$this->userid = $this->curr_user->id;
+			$this->groupid = $this->curr_user->id;
 
 			$this->set('curr_user', $this->curr_user);
 			$this->set('userid', $this->userid);
 			$this->set('groupid', $this->groupid);
 		} else {
 			// Create User if not present yet
-			$this->User->create();
-			$this->User->save(
-				[
-					'User' => [
-						'name' => env("REMOTE_USER"),
-						'group_id' => 0,
-					],
-					['validate' => false]
-				]
-			);
+			$array = [
+				'name' => env("REMOTE_USER"),
+				'group_id' => 0
+			];
+			$user = $this->Users->newEntity($array, ['validate' => false]);
+			$this->Users->save($user);
 			return $this->redirect(['controller' => 'times', 'action' => 'index']);
 		}
 	}

@@ -122,50 +122,50 @@ if (!isset($startedTime)) {
 	<?php foreach ($times as $time): ?>
 
 
-		<tr class="<?php echo 'individualEntry' . $time['User']['id']; ?>">
-			<td><?php echo substr($time['Time']['start'], 0, 10); ?></td>
-			<td><?php echo $html->link($time['User']['name'], '/users/view/' . $time['User']['id']) ?></td>
-			<td><?php echo $html->link($time['Customer']['name'], '/customers/view/' . $time['Customer']['id']) ?></td>
-			<td><?php echo $time['Time']['task']; ?></td>
-			<td><?php echo $time['Time']['note']; ?></td>
-			<td><?php echo substr($time['Time']['start'], 10, 6); ?></td>
-			<td><?php echo substr($time['Time']['stop'], 10, 6); ?></td>
-			<td><?php echo $time['Time']['break']; ?></td>
+		<tr class="<?php echo 'individualEntry' . $time->user['id']; ?>">
+			<td><?php echo substr($time['start'], 0, 10); ?></td>
+			<td><?php echo $html->link($time->user['name'], '/users/view/' . $time->user['id']) ?></td>
+			<td><?php echo $html->link($time->customer['name'], '/customers/view/' . $time->customer['id']) ?></td>
+			<td><?php echo $time['task']; ?></td>
+			<td><?php echo $time['note']; ?></td>
+			<td><?php echo substr($time['start'], 10, 6); ?></td>
+			<td><?php echo substr($time['stop'], 10, 6); ?></td>
+			<td><?php echo $time['break']; ?></td>
 			<?
-			if ($time['Time']['stop'] == '0000-00-00 00:00:00') {
-				$time['Time']['stop'] = date('Y-m-d H:i:s');
+			if ($time['stop'] == '0000-00-00 00:00:00') {
+				$time['stop'] = date('Y-m-d H:i:s');
 			}
-			$time['Time']['startsec'] = mktime(
-				substr($time['Time']['start'], 11, 2),
-				substr($time['Time']['start'], 14, 2),
-				substr($time['Time']['start'], 17, 2),
-				substr($time['Time']['start'], 5, 2),
-				substr($time['Time']['start'], 8, 2),
-				substr($time['Time']['start'], 0, 2)
+			$time['startsec'] = mktime(
+				substr($time['start'], 11, 2),
+				substr($time['start'], 14, 2),
+				substr($time['start'], 17, 2),
+				substr($time['start'], 5, 2),
+				substr($time['start'], 8, 2),
+				substr($time['start'], 0, 2)
 			);
 
-			$time['Time']['stopsec'] = mktime(
-				substr($time['Time']['stop'], 11, 2),
-				substr($time['Time']['stop'], 14, 2),
-				substr($time['Time']['stop'], 17, 2),
-				substr($time['Time']['stop'], 5, 2),
-				substr($time['Time']['stop'], 8, 2),
-				substr($time['Time']['stop'], 0, 2)
+			$time['stopsec'] = mktime(
+				substr($time['stop'], 11, 2),
+				substr($time['stop'], 14, 2),
+				substr($time['stop'], 17, 2),
+				substr($time['stop'], 5, 2),
+				substr($time['stop'], 8, 2),
+				substr($time['stop'], 0, 2)
 			);
-			$diff = ($time['Time']['stopsec'] - $time['Time']['startsec']) / 3600 - $time['Time']['break'];
+			$diff = ($time['stopsec'] - $time['startsec']) / 3600 - $time['break'];
 			?>
 			<td><?php echo round($diff, 2); ?></td>
 
 
 			<td class="actions">
 				<?php
-				if (env('REMOTE_USER') == $time['User']['name']) {
-					echo $html->link('ed', '/times/edit/' . $time['Time']['id']) . ' / ';
+				if (env('REMOTE_USER') == $time->user['name']) {
+					echo $html->link('ed', '/times/edit/' . $time['id']) . ' / ';
 					echo $html->link(
 						'x',
-						'/times/delete/' . $time['Time']['id'],
+						'/times/delete/' . $time['id'],
 						null,
-						'Are you sure you want to delete id ' . $time['Time']['id']
+						'Are you sure you want to delete id ' . $time['id']
 					);
 				}
 				?>
@@ -200,7 +200,7 @@ if (!isset($startedTime)) {
 	<?
 	foreach ($projectstatistics as $key => $stats) {
 		foreach ($stats as $stat) {
-			$stat_project[$stat['times']['customer_id']][$stat['times']['task']][$key] = round($stat[0]['sum'], 2);
+			$stat_project[$stat->times['customer_id']][$stat->times['task']][$key] = round($stat[0]['sum'], 2);
 		}
 	}
 	?>

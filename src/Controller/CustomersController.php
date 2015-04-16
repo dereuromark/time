@@ -12,30 +12,29 @@ class CustomersController extends AppController {
 	public function beforeFilter(Event $event) {
 		parent::beforeFilter($event);
 		if ($this->groupid != 1) {
-			return $this->flash('You are not allowed to use this function', '/times/index');
+			$this->Flash->message('You are not allowed to use this function'); return $this->redirect('/times/index');
 		}
 	}
 
 	public function index() {
-		$this->Customer->recursive = 0;
-		$this->set('Customers', $this->Customer->find('all'));
+		$this->Customers->recursive = 0;
+		$this->set('Customers', $this->Customers->find('all'));
 	}
 
 	public function view($id = null) {
 		if (!$id) {
-			return $this->flash('Invalid id for Customer', '/Customers/index');
+			$this->Flash->message('Invalid id for Customer'); return $this->redirect('/Customers/index');
 		}
-		$this->set('Customer', $this->Customer->findById($id));
+		$this->set('Customer', $this->Customers->findById($id));
 	}
 
 	public function add() {
 		if (empty($this->request->data)) {
-			$this->render();
+
 		} else {
 			$this->cleanUpFields();
-			if ($this->Customer->save($this->request->data)) {
-				return $this->flash('Customer saved.', '/Customers/index');
-			} else {
+			if ($this->Customers->save($entity)) {
+				$this->Flash->message('Customer saved.'); return $this->redirect('/Customers/index');
 			}
 		}
 	}
@@ -43,24 +42,25 @@ class CustomersController extends AppController {
 	public function edit($id = null) {
 		if (empty($this->request->data)) {
 			if (!$id) {
-				return $this->flash('Invalid id for Customer', '/Customers/index');
+				$this->Flash->message('Invalid id for Customer'); return $this->redirect('/Customers/index');
 			}
-			$this->request->data = $this->Customer->findById($id);
+			$this->request->data = $this->Customers->findById($id);
 		} else {
 			$this->cleanUpFields();
-			if ($this->Customer->save($this->request->data)) {
-				return $this->flash('Customer saved.', '/Customers/index');
-			} else {
+			if ($this->Customers->save($entity)) {
+				$this->Flash->message('Customer saved.'); return $this->redirect('/Customers/index');
 			}
 		}
 	}
 
 	public function delete($id = null) {
+		//$this->request->allowMethod(['post', 'delete']);
+
 		if (!$id) {
-			return $this->flash('Invalid id for Customer', '/Customers/index');
+			$this->Flash->message('Invalid id for Customer'); return $this->redirect('/Customers/index');
 		}
-		if ($this->Customer->delete($id)) {
-			return $this->flash('Customer deleted: id ' . $id . '.', '/Customers/index');
+		if ($this->Customers->delete($customer)) {
+			$this->Flash->message('Customer deleted: id ' . $id . '.'); return $this->redirect('/Customers/index');
 		}
 	}
 

@@ -1,18 +1,9 @@
 <?php
-$abteilungen = [
-	'marketing' => 'Marketing',
-	'kundenkontakt' => 'Kundenkontakt',
-	'entwicklung' => 'Entwicklung',
-	'server' => 'Server/Infra.',
-	'organisation' => 'Organisation/Personal',
-	'product_m' => 'ProduktM.',
-	'business_dev' => 'BusinessDev'
-];
 
 if (!isset($startedTime)) {
 	?>
 	<h3 class="startbar-headline">Start Time</h3>
-	<?php echo $this->Form->create('Time', ['action' => 'start', 'method' => 'post', 'class' => 'form-inline']); ?>
+	<?php echo $this->Form->create($time, ['action' => 'start', 'method' => 'post', 'class' => 'form-inline']); ?>
 	<?php echo $this->Form->input('id'); ?>
 	<?php echo $this->Form->input(
 		'customer_id',
@@ -25,7 +16,7 @@ if (!isset($startedTime)) {
 			'label' => false,
 			'empty' => 'Choose Team',
 			'div' => false,
-			'options' => $abteilungen,
+			'options' => $time->tasks(),
 			'class' => 'input-small'
 		]
 	); ?>
@@ -35,21 +26,21 @@ if (!isset($startedTime)) {
 	); ?>
 	<?php echo $this->Form->input(
 		'break',
-		['label' => false, 'div' => false, 'placeholder' => 'Pause', 'size' => '3', 'class' => 'input-small']
+		['type' => 'text', 'label' => false, 'div' => false, 'placeholder' => 'Pause', 'size' => '3', 'class' => 'input-small']
 	); ?>
-
-	<?php echo $this->Form->end(
-		[
-			'label' => 'Start',
+	<?php
+	echo $this->Form->submit('Start', [
 			'class' => 'btn btn-success',
 			'div' => false,
 		]
-	);    ?>
+	);
+	?>
+	<?php echo $this->Form->end();    ?>
 <?php
 } else {
 	?>
 	<h3 class="startbar-headline">Stop Time</h3>
-	<?php echo $this->Form->create('Time', ['action' => 'stop', 'method' => 'post', 'class' => 'form-inline']); ?>
+	<?php echo $this->Form->create($time, ['action' => 'stop', 'method' => 'post', 'class' => 'form-inline']); ?>
 
 	<?php echo $this->Form->input('id'); ?>
 	<?php echo $this->Form->input(
@@ -63,7 +54,7 @@ if (!isset($startedTime)) {
 			'label' => false,
 			'empty' => 'Choose Team',
 			'div' => false,
-			'options' => $abteilungen,
+			'options' => $time->tasks(),
 			'class' => 'input-small'
 		]
 	); ?>
@@ -75,14 +66,15 @@ if (!isset($startedTime)) {
 		'break',
 		['label' => false, 'div' => false, 'placeholder' => 'Pause', 'size' => '3', 'class' => 'input-small']
 	); ?>
-
-	<?php echo $this->Form->end(
-		[
-			'label' => 'Stop',
+	<?php
+	echo $this->Form->submit('Stop', [
 			'class' => 'btn btn-danger',
 			'div' => false,
 		]
-	);    ?>
+	);
+	?>
+
+	<?php echo $this->Form->end();    ?>
 <?php
 }
 ?>
@@ -105,75 +97,57 @@ if (!isset($startedTime)) {
 			<tbody>
 			<?php foreach ($times as $time): ?>
 
-				<tr class="<?php echo 'individualEntry' . $time['User']['id']; ?>">
-					<td><?php echo substr($time['Time']['start'], 0, 10); ?></td>
+				<tr class="<?php echo 'individualEntry' . $time->user['id']; ?>">
+					<td><?php echo $this->Time->format($time['start'], 'YYYY-MM-dd'); ?>
+					</td>
 					<td><?php echo $this->Html->link(
-							$time['User']['name'],
-							['controller' => 'times', 'action' => 'index', '?' => ['user_id' => $time['User']['id']]]); ?></td>
-					<td><?php echo substr($time['Time']['start'], 10, 6); ?></td>
-					<td><?php echo substr($time['Time']['stop'], 10, 6); ?></td>
-					<td><?php echo $time['Time']['break']; ?></td>
+							$time->user['name'],
+							['controller' => 'times', 'action' => 'index', '?' => ['user_id' => $time->user['id']]]); ?></td>
+					<td><?php echo $this->Time->format($time['start'], 'HH:mm'); ?></td>
+					<td><?php echo $this->Time->format($time['stop'], 'HH:mm'); ?></td>
+					<td><?php echo $time['break']; ?></td>
 					<?php
-					if ($time['Time']['stop'] == '0000-00-00 00:00:00') {
-						$time['Time']['stop'] = date('Y-m-d H:i:s');
+					if ($time['stop']) {
+						$diff = $time['stop']->diffInSeconds($time['start']) - 3600 * $time['break'];
+					} else {
+						$diff = 0;
 					}
-					$time['Time']['startsec'] = mktime(
-						substr($time['Time']['start'], 11, 2),
-						substr($time['Time']['start'], 14, 2),
-						substr($time['Time']['start'], 17, 2),
-						substr($time['Time']['start'], 5, 2),
-						substr($time['Time']['start'], 8, 2),
-						substr($time['Time']['start'], 0, 2)
-					);
-
-					$time['Time']['stopsec'] = mktime(
-						substr($time['Time']['stop'], 11, 2),
-						substr($time['Time']['stop'], 14, 2),
-						substr($time['Time']['stop'], 17, 2),
-						substr($time['Time']['stop'], 5, 2),
-						substr($time['Time']['stop'], 8, 2),
-						substr($time['Time']['stop'], 0, 2)
-					);
-					$diff = ($time['Time']['stopsec'] - $time['Time']['startsec']) / 3600 - $time['Time']['break'];
 					?>
-					<td><?php echo round($diff, 2); ?></td>
+					<td><?php echo round($diff / 3600, 2); ?></td>
 
 
 					<td class="actions right"><?php
-						if ($userid == $time['User']['id'] && strtotime($time['Time']['start']) - strtotime(
+						if ($userid == $time->user['id'] && $time['start'] && strtotime($time['start']) - strtotime(
 								'-4 days'
 							) > 0
 						) {
 							echo $this->Html->link(
 									'<i class="icon-pencil"></i>',
-									'/times/edit/' . $time['Time']['id'],
+									'/times/edit/' . $time['id'],
 									['class' => 'btn btn-mini', 'escape' => false]
 								) . ' ';
 							echo $this->Html->link(
 								'<i class="icon-remove"></i>',
-								'/times/delete/' . $time['Time']['id'],
+								'/times/delete/' . $time['id'],
 								['class' => 'btn btn-mini', 'escape' => false],
-								'Are you sure you want to delete id ' . $time['Time']['id']
+								'Are you sure you want to delete id ' . $time['id']
 							);
 						}
 						?>
 					</td>
 				</tr>
-				<tr class="border <?php echo 'individualEntry' . $time['User']['id']; ?>">
+				<tr class="border <?php echo 'individualEntry' . $time->user['id']; ?>">
 					<td colspan=7><?php echo $this->Html->link(
-							$time['Customer']['name'],
-							'/times/index/customer_id:' . $time['Customer']['id']
+							$time->customer['name'],
+							'/times/index/customer_id:' . $time->customer['id']
 						); ?>
-						| <?php if (!empty($time['Time']['task'])) {
-							echo '<b>' . $time['Time']['task'] . ': </b>';
-						} ?> <?php echo substr(
-							$time['Time']['note'],
-							0,
+						| <?php if (!empty($time['task'])) {
+							echo '<b>' . $time['task'] . ': </b>';
+						} ?> <?php echo $this->Text->truncate(
+							$time['note'],
 							60
 						);
-						if (strlen($time['Time']['note']) > 60) {
-							echo '...';
-						} ?>
+						?>
 					</td>
 				</tr>
 			<?php endforeach; ?>
@@ -217,11 +191,11 @@ if (!isset($startedTime)) {
 	<?php
 	foreach ($projectstatistics as $key => $stats) {
 		foreach ($stats as $stat) {
-			if (empty($stat['times']['task'])) {
-				$stat['times']['task'] = ' ';
+			if (empty($stat['task'])) {
+				$stat['task'] = ' ';
 			}
 
-			$stat_project[$stat['times']['customer_id']][$stat['times']['task']][$key] = round($stat[0]['sum'], 2);
+			$stat_project[$stat['customer_id']][$stat['task']][$key] = round($stat[0]['sum'], 2);
 
 		}
 	}

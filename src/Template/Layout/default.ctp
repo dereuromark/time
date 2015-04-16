@@ -46,7 +46,7 @@
 		<h1>Time tracking</h1>
 	</div>
 
-	<?php echo $this->Session->flash(); ?>
+	<?php echo $this->Flash->render(); ?>
 	<?php echo $this->fetch('content'); ?>
 </div>
 <!-- /container -->

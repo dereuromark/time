@@ -62,6 +62,8 @@ try {
 } catch (\Exception $e) {
     die($e->getMessage() . "\n");
 }
+Configure::load('app_custom', 'default');
+Configure::load('app_local', 'default');
 
 // Load an environment local configuration file.
 // You can use a file like app_local.php to provide local overrides to your
@@ -175,6 +177,9 @@ Request::addDetector('tablet', function ($request) {
  */
 
 Plugin::load('Migrations');
+Plugin::load('Tools');
+Plugin::load('Setup');
+Plugin::load('Shim');
 
 // Only try to load DebugKit in development mode
 // Debug Kit should not be installed on a production system

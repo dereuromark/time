@@ -13,16 +13,16 @@
 		</tr>
 		<?php foreach ($Payments as $Payment): ?>
 			<tr>
-				<td><?php echo $Payment['Payment']['id']; ?></td>
-				<td><?php echo $Payment['User']['name']; ?></td>
-				<td><?php echo $Payment['Payment']['hours']; ?></td>
-				<td><?php echo $Payment['Payment']['rate']; ?></td>
-				<td><?php echo $Payment['Payment']['comment']; ?></td>
-				<td><?php echo $Payment['Payment']['created']; ?></td>
+				<td><?php echo $Payment['id']; ?></td>
+				<td><?php echo $Payment->user['name']; ?></td>
+				<td><?php echo $Payment['hours']; ?></td>
+				<td><?php echo $Payment['rate']; ?></td>
+				<td><?php echo $Payment['comment']; ?></td>
+				<td><?php echo $Payment['created']; ?></td>
 				<td class="actions">
-					<?php echo $html->link('View', '/payments/view/' . $Payment['Payment']['id']) ?>
-					<?php //echo $html->link('Edit','/payments/edit/' . $Payment['Payment']['id'])?>
-					<?php //echo $html->link('Delete','/payments/delete/' . $Payment['Payment']['id'], null, 'Are you sure you want to delete id ' . $Payment['Payment']['id'])?>
+					<?php echo $html->link('View', '/payments/view/' . $Payment['id']) ?>
+					<?php //echo $html->link('Edit','/payments/edit/' . $Payment['id'])?>
+					<?php //echo $html->link('Delete','/payments/delete/' . $Payment['id'], null, 'Are you sure you want to delete id ' . $Payment['id'])?>
 				</td>
 			</tr>
 		<?php endforeach; ?>

@@ -12,19 +12,19 @@
 		</tr>
 		<?php foreach ($Customers as $Customer): ?>
 			<tr>
-				<td><?php echo $Customer['Customer']['id']; ?></td>
-				<td><?php echo $Customer['Customer']['name']; ?></td>
-				<td><?php echo $Customer['Customer']['description']; ?></td>
-				<td><?php echo $Customer['Customer']['created']; ?></td>
-				<td><?php echo $Customer['Customer']['modified']; ?></td>
+				<td><?php echo $Customer['id']; ?></td>
+				<td><?php echo $Customer['name']; ?></td>
+				<td><?php echo $Customer['description']; ?></td>
+				<td><?php echo $Customer['created']; ?></td>
+				<td><?php echo $Customer['modified']; ?></td>
 				<td class="actions">
-					<?php echo $html->link('View', '/customers/view/' . $Customer['Customer']['id']) ?>
-					<?php echo $html->link('Edit', '/customers/edit/' . $Customer['Customer']['id']) ?>
+					<?php echo $html->link('View', '/customers/view/' . $Customer['id']) ?>
+					<?php echo $html->link('Edit', '/customers/edit/' . $Customer['id']) ?>
 					<?php echo $html->link(
 						'Delete',
-						'/customers/delete/' . $Customer['Customer']['id'],
+						'/customers/delete/' . $Customer['id'],
 						null,
-						'Are you sure you want to delete id ' . $Customer['Customer']['id']
+						'Are you sure you want to delete id ' . $Customer['id']
 					) ?>
 				</td>
 			</tr>

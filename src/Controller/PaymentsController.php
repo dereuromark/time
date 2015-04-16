@@ -12,42 +12,38 @@ class PaymentsController extends AppController {
 	public function beforeFilter(Event $event) {
 		parent::beforeFilter($event);
 		if ($this->groupid != 1) {
-			return $this->flash('You are not allowed to use this function', '/times/index');
-			exit(0);
+			$this->Flash->message('You are not allowed to use this function'); return $this->redirect('/times/index');
 		}
 	}
 
 	public function index() {
-		$this->Payment->recursive = 0;
-		$this->set('Payments', $this->Payment->find('all'));
+		$this->Payments->recursive = 0;
+		$this->set('Payments', $this->Payments->find('all'));
 
-		$statistics['Marco'] = $this->Payment->statistics(1);
-		$statistics['Markus'] = $this->Payment->statistics(2);
-		$statistics['Stefan'] = $this->Payment->statistics(3);
-		$statistics['David'] = $this->Payment->statistics(4);
+		$statistics['Marco'] = $this->Payments->statistics(1);
+		$statistics['Markus'] = $this->Payments->statistics(2);
+		$statistics['Stefan'] = $this->Payments->statistics(3);
+		$statistics['David'] = $this->Payments->statistics(4);
 
 		$this->set('statistics', $statistics);
 	}
 
 	public function view($id = null) {
 		if (!$id) {
-			return $this->flash('Invalid id for Payment', '/payments/index');
+			$this->Flash->message('Invalid id for Payment'); return $this->redirect('/payments/index');
 		}
-		$this->set('Payment', $this->Payment->findById($id));
+		$this->set('Payment', $this->Payments->findById($id));
 	}
 
 	public function add() {
 		if (empty($this->request->data)) {
-			$this->set('Users', $this->Payment->User->find('list'));
+			$this->set('Users', $this->Payments->User->find('list'));
 			$this->render();
 		} else {
 			$this->cleanUpFields();
-			if ($this->Payment->save($this->request->data)) {
-				return $this->flash('Payment saved.', '/times/index');
-			} else {
+			if ($this->Payments->save($entity)) {
+				$this->Flash->message('Payment saved.'); return $this->redirect('/times/index');
 			}
 		}
 	}
 }
-
-?>
