@@ -1,3 +1,4 @@
+# OUTDATED - see README
 
 CREATE TABLE IF NOT EXISTS `customers` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
