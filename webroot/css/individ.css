@@ -18,3 +18,7 @@
     background: #e3e5f9;
     color: #777;
 }
+
+form.form-inline {
+	margin-bottom: 20px;
+}

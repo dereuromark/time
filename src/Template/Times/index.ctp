@@ -29,9 +29,10 @@ if (empty($startedTime)) {
 		['type' => 'text', 'label' => false, 'div' => false, 'placeholder' => 'Pause', 'size' => '3', 'class' => 'input-small']
 	); ?>
 	<?php
-	echo $this->Form->submit('Start', [
+	echo $this->Form->input('Start', [
+			'type' => 'Submit',
 			'class' => 'btn btn-success',
-			'div' => false,
+			'label' => false
 		]
 	);
 	?>
@@ -67,9 +68,10 @@ if (empty($startedTime)) {
 		['type' => 'text', 'label' => false, 'div' => false, 'placeholder' => 'Pause', 'size' => '3', 'class' => 'input-small']
 	); ?>
 	<?php
-	echo $this->Form->submit('Stop', [
+	echo $this->Form->input('Stop', [
+			'type' => 'Submit',
 			'class' => 'btn btn-danger',
-			'div' => false,
+			'label' => false,
 		]
 	);
 	?>
