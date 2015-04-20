@@ -47,6 +47,7 @@ use Cake\Network\Request;
 use Cake\Routing\DispatcherFactory;
 use Cake\Utility\Inflector;
 use Cake\Utility\Security;
+use Cake\Database\Type;
 
 /**
  * Read configuration file and inject configuration into various
@@ -93,7 +94,7 @@ mb_internal_encoding(Configure::read('App.encoding'));
  * Set the default locale. This controls how dates, number and currency is
  * formatted and sets the default language to use for translations.
  */
-ini_set('intl.default_locale', 'en_US');
+ini_set('intl.default_locale', 'de_DE');
 
 /**
  * Register application error and exception handlers.
@@ -193,3 +194,6 @@ if (Configure::read('debug')) {
 DispatcherFactory::add('Asset');
 DispatcherFactory::add('Routing');
 DispatcherFactory::add('ControllerFactory');
+
+// Enable default locale format parsing.
+Type::build('datetime')->useLocaleParser();

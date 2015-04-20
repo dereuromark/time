@@ -36,7 +36,6 @@
 	 */
 	echo $this->fetch('meta');
 	echo $this->fetch('css');
-	echo $this->fetch('script');
 	?>
 </head>
 
@@ -54,8 +53,10 @@
 <!-- Le javascript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<?php echo $this->Html->script('jquery-1.8.1.min'); ?>
+<?php echo $this->Html->script('jquery.min'); ?>
 <?php echo $this->Html->script('bootstrap.min'); ?>
-
+<?php
+	echo $this->fetch('script');
+?>
 </body>
 </html>

@@ -22,7 +22,7 @@ class TimesTable extends AppTable {
 		$heute = getdate();
 		$query = $this->find()->where("start >= '" . $heute['year'] . '-' . sprintf("%02s", $heute['mon']) . '-01 00:00:00' . "' AND
 		user_id = $userid AND
-		stop != '0000-00-00 00:00:00'");
+		stop IS NOT NULL");
 
 		$sum = $query->func()->sum('((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break)');
 		$query->select(['this_month' => $sum]);
@@ -33,7 +33,7 @@ class TimesTable extends AppTable {
 						WHERE
 						start >= '" . $heute['year'] . '-' . sprintf("%02s", $heute['mon']) . '-01 00:00:00' . "' AND
 			user_id = $userid AND
-			stop != '0000-00-00 00:00:00'"
+			stop IS NOT NULL"
 		);
 		*/
 		$stats = $query->toArray();
@@ -73,7 +73,7 @@ class TimesTable extends AppTable {
 
 		$query = $this->find()->where("start >= '" . $heute['year'] . '-01-01 00:00:00' . "' and
 			user_id = $userid AND
-			stop != '0000-00-00 00:00:00'");
+			stop IS NOT NULL");
 		$query->select(['last_year' => $sum]);
 		/*
 		$stats = $this->query(
@@ -81,20 +81,20 @@ class TimesTable extends AppTable {
 						WHERE
 						start >= '" . $heute['year'] . '-01-01 00:00:00' . "' and
 			user_id = $userid AND
-			stop != '0000-00-00 00:00:00'"
+			stop IS NOT NULL"
 		);
 		*/
 		$stats = $query->toArray();
 		$return['year'] = $stats[0]['year'];
 
-		$query = $this->find()->where("user_id = $userid AND stop != '0000-00-00 00:00:00'");
+		$query = $this->find()->where("user_id = $userid AND stop IS NOT NULL");
 		$query->select(['life' => $sum]);
 		/*
 		$stats = $this->query(
 			"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as life FROM `times`
 			WHERE
 			user_id = $userid AND
-			stop != '0000-00-00 00:00:00'"
+			stop IS NOT NULL"
 		);
 		*/
 		$stats = $query->toArray();
@@ -110,25 +110,25 @@ class TimesTable extends AppTable {
 			$stats['this_month'] = $this->query(
 				"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`, customer_id FROM `times` Where
 								start >= '" . $heute['year'] . '-' . sprintf("%02s", $heute['mon']) . '-01 00:00:00' . "' and
-				stop != '0000-00-00 00:00:00'
+				stop IS NOT NULL
 				GROUP BY customer_id order by start desc, customer_id desc"
 			);
 			$stats['last_month'] = $this->query(
 				"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`, customer_id FROM `times` Where
 								start <  '" . $heute['year'] . '-' . sprintf("%02s", $heute['mon']) . '-01 00:00:00' . "' AND
 				start >= '" . $heute['year'] . '-' . (sprintf("%02s", $heute['mon']) - 1) . '-01 00:00:00' . "' AND
-				stop != '0000-00-00 00:00:00'
+				stop IS NOT NULL
 				GROUP BY customer_id order by start desc, customer_id desc"
 			);
 			$stats['year'] = $this->query(
 				"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`, customer_id FROM `times` Where
 								start >= '" . $heute['year'] . '-01-01 00:00:00' . "' and
-				stop != '0000-00-00 00:00:00'
+				stop IS NOT NULL
 				GROUP BY customer_id order by start desc, customer_id desc "
 			);
 			$stats['life'] = $this->query(
 				"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`, customer_id FROM `times` Where
-								stop != '0000-00-00 00:00:00'
+								stop IS NOT NULL
 								GROUP BY customer_id order by start desc, customer_id desc "
 			);
 
@@ -139,25 +139,25 @@ class TimesTable extends AppTable {
 			$stats['this_month'] = $this->query(
 				"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`, customer_id, task FROM `times` Where customer_id = $data and
 				start >= '" . $heute['year'] . '-' . sprintf("%02s", $heute['mon']) . '-01 00:00:00' . "' and
-				stop != '0000-00-00 00:00:00'
+				stop IS NOT NULL
 				GROUP BY task, customer_id order by start desc, customer_id desc, task asc "
 			);
 			$stats['last_month'] = $this->query(
 				"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`, customer_id, task FROM `times` Where  customer_id = $data and
 				start <  '" . $heute['year'] . '-' . sprintf("%02s", $heute['mon']) . '-01 00:00:00' . "' AND
 				start >= '" . $heute['year'] . '-' . (sprintf("%02s", $heute['mon']) - 1) . '-01 00:00:00' . "' AND
-				stop != '0000-00-00 00:00:00'
+				stop IS NOT NULL
 				GROUP BY task, customer_id order by start desc, customer_id desc, task asc "
 			);
 			$stats['year'] = $this->query(
 				"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`, customer_id, task FROM `times` Where   customer_id = $data and
 				start >= '" . $heute['year'] . '-01-01 00:00:00' . "' and
-				stop != '0000-00-00 00:00:00'
+				stop IS NOT NULL
 				GROUP BY task, customer_id order by start desc, customer_id desc, task asc "
 			);
 			$stats['life'] = $this->query(
 				"SELECT sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`, customer_id, task FROM `times` Where  customer_id = $data and
-				stop != '0000-00-00 00:00:00'
+				stop IS NOT NULL
 				GROUP BY task, customer_id order by start desc, customer_id desc, task asc "
 			);
 
@@ -172,7 +172,7 @@ class TimesTable extends AppTable {
 								sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`,
 								month(start) as month,
 								year(start) as year
-								FROM `times` WHERE stop != '0000-00-00 00:00:00'
+								FROM `times` WHERE stop IS NOT NULL
 								GROUP BY year, month order by start desc, month desc "
 			);
 		} elseif (is_numeric($data)) {
@@ -181,7 +181,7 @@ class TimesTable extends AppTable {
 				sum((UNIX_TIMESTAMP(stop)-UNIX_TIMESTAMP(start))/3600-break) as `sum`,
 				month(start) as month,
 				year(start) as year
-				FROM `times` Where customer_id = $data AND stop != '0000-00-00 00:00:00'
+				FROM `times` Where customer_id = $data AND stop IS NOT NULL
 				GROUP BY year, month order by start desc "
 			);
 

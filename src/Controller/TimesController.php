@@ -19,7 +19,6 @@ class TimesController extends AppController {
 		/* Wenn schon gestartet, dann Werte in Stop-Formular ausgeben */
 		$conditions = "user_id = '" . $this->userid . "' AND stop IS null";
 		$time = $this->Times->find()->where($conditions)->first();
-
 		if ($time) {
 			$this->set('startedTime', 1);
 			//$this->request->data = $result;
@@ -49,21 +48,13 @@ class TimesController extends AppController {
 		}
 
 		$userId = $this->request->query('user_id');
-		if (isset($this->request->named['user_id'])) {
-			$userId = $this->request->named['user_id'];
-		}
-
 		if ($userId) {
-			$params->conditions['Time.user_id'] = $userId;
+			$params['conditions']['Times.user_id'] = $userId;
 		}
 
 		$customerId = (int)$this->request->query('customer_id');
-		if (isset($this->request->named['customer_id'])) {
-			$customerId = (int)$this->request->named['customer_id'];
-		}
-
 		if ($customerId) {
-			$params->conditions['Time.customer_id'] = $customerId;
+			$params['conditions']['Times.customer_id'] = $customerId;
 			$this->set(
 				'projectstatistics',
 				$this->Times->projectstatistics($customerId)
@@ -73,7 +64,9 @@ class TimesController extends AppController {
 			$this->set('projectstatistics', $this->Times->projectstatistics('all'));
 			$this->set('monthly_stats', $this->Times->monthly_stats('all'));
 		}
+		//$params['conditions']['Times.id'] = 1;
 		$params['contain'][] = 'Users';
+		$params['contain'][] = 'Customers';
 
 		$times = $this->Times->find('all', $params);
 
@@ -88,7 +81,7 @@ class TimesController extends AppController {
 		$this->set(compact('time'));
 	}
 
-	public function index_customer($customer, $count = 30) {
+	public function indexCustomer($customer = null, $count = 30) {
 		//$this->Times->recursive = 0;
 		/* Wenn schon gestartet, dann Werte in Stop-Formular ausgeben */
 		$conditions = "Times.user_id = '" . $this->userid . "' AND Times.stop IS NULL";
@@ -119,6 +112,7 @@ class TimesController extends AppController {
 				$this->Times->find(
 					'all',
 					[
+						'contain' => ['Customers'],
 						'conditions' => [
 							'Customers.id' => $customer,
 							'Times.user_id' => $this->userid,
@@ -130,15 +124,16 @@ class TimesController extends AppController {
 			);
 		}
 
-		$statistics->marco['Time'] = $this->Times->statistics(1);
-		$statistics->markus['Time'] = $this->Times->statistics(2);
-		$statistics->stefan['Time'] = $this->Times->statistics(3);
-		$statistics->david['Time'] = $this->Times->statistics(4);
+		$statistics = [];
+		$statistics['Marco']['Time'] = $this->Times->statistics(1);
+		$statistics['Markus']['Time'] = $this->Times->statistics(2);
+		$statistics['Stephan']['Time'] = $this->Times->statistics(3);
+		$statistics['David']['Time'] = $this->Times->statistics(4);
 
-		$statistics->marco['Payment'] = $this->Times->Users->Payments->statistics(1);
-		$statistics->markus['Payment'] = $this->Times->Users->Payments->statistics(2);
-		$statistics->stefan['Payment'] = $this->Times->Users->Payments->statistics(3);
-		$statistics->david['Payment'] = $this->Times->Users->Payments->statistics(4);
+		$statistics['Marco']['Payment'] = $this->Times->Users->Payments->statistics(1);
+		$statistics['Markus']['Payment'] = $this->Times->Users->Payments->statistics(2);
+		$statistics['Stephan']['Payment'] = $this->Times->Users->Payments->statistics(3);
+		$statistics['David']['Payment'] = $this->Times->Users->Payments->statistics(4);
 
 		$this->set('projectstatistics', $this->Times->projectstatistics($customer));
 		$this->set('monthly_stats', $this->Times->monthly_stats($customer));
@@ -152,14 +147,14 @@ class TimesController extends AppController {
 		/* Check if entry already exists */
 		$conditions = "Times.user_id = '" . $this->userid . "' AND Times.stop IS null";
 		$result = $this->Times->find('first', ['conditions' => $conditions]);
-		if (!$result) {
+		if ($result) {
 			$this->Flash->error('Du arbeitest doch schon');
 			return $this->redirect('/times/index');
 		}
 
 		$time = $this->Times->newEntity();
 		$this->request->data['user_id'] = $this->userid;
-		$this->request->data['start'] = date('Y-m-d H:i:s');
+		$this->request->data['start'] = new \Cake\I18n\Time();
 		$this->request->data['break'] = 0;
 
 		$entity = $this->Times->patchEntity($time, $this->request->data);
@@ -187,7 +182,7 @@ class TimesController extends AppController {
 			throw new NotFoundException();
 		}
 
-		$this->request->data['stop'] = date('Y-m-d H:i:s');
+		$this->request->data['stop'] = new \Cake\I18n\Time();
 		$time = $this->Times->patchEntity($time, $this->request->data);
 		if ($this->Times->save($time)) {
 			$this->Flash->success('Stopped, Wohoo!');
@@ -201,42 +196,36 @@ class TimesController extends AppController {
 	}
 
 	public function edit($id = null) {
-		if (empty($this->request->data)) {
-			$conditions = "Times.id = $id AND Times.user_id = $this->userid";
-			if (!$id || !($record = $this->Times->find('first', ['conditions' => $conditions]))) {
-				$this->Flash->error('Invalid id for Time');
-				return $this->redirect('/times/index');
-			}
-			$conditions = "Times.id = $id AND Times.start > DATE_SUB(CURRENT_DATE, INTERVAL 4 DAY) ";
-			$time = $this->Times->find('first', ['conditions' => $conditions]);
-			if (!$time) {
-				$this->Flash->error('Entry too old');
-				return $this->redirect('/times/index');
-			}
-			$this->request->data = $record;
-
-		} elseif ($this->Times->find('first', [
+		$time = $this->Times->find('first', [
 			'conditions' =>
 				"Times.id = $id AND Times.user_id = $this->userid AND Times.start > DATE_SUB(CURRENT_DATE, INTERVAL 4 DAY) "
-			])
-		) {
-			// Only own ids
-			$this->request->data['Time']['id'] = $id;
-			$this->request->data['Time']['user_id'] = $this->userid;
+		]);
+		if (!$time) {
+			$this->Flash->error('Entry too old or inexistent');
+			return $this->redirect('/times/index');
+		}
 
-			if (strtotime($this->request->data['Time']['start']) - strtotime('-5 days') < 0) {
+		if ($this->request->is(['post', 'put'])) {
+			// Only own ids
+			$this->request->data['id'] = $id;
+			$this->request->data['user_id'] = $this->userid;
+
+			$start = \Cake\I18n\Time::parseDateTime($this->request->data['start']);
+			if ($start->addDays(5)->timestamp < time()) {
 				$this->Flash->error('Entry gets too old');
 				return $this->redirect('/times/index');
 			}
-			if ($this->Times->save($entity)) {
+			$time = $this->Times->patchEntity($time, $this->request->data);
+
+			if ($this->Times->save($time)) {
 				$this->Flash->success('The Time has been saved');
 				return $this->redirect('/times/index');
-			} else {
-				$this->Flash->error('Please correct errors below.');
 			}
+			$this->Flash->error('Please correct errors below.');
 		}
 
 		$this->set('customers', $this->Times->Customers->find('list'));
+		$this->set(compact('time'));
 	}
 
 	public function delete($id = null) {
@@ -244,7 +233,7 @@ class TimesController extends AppController {
 			$this->Flash->error('Invalid id for Time');
 			return $this->redirect('/times/index');
 		}
-		if ($this->Times->delete($times)) {
+		if ($this->Times->delete($record)) {
 			$this->Flash->success('The Time deleted: id ' . $id);
 			return $this->redirect('/times/index');
 		}
@@ -262,9 +251,9 @@ class TimesController extends AppController {
 		}
 		$this->set('customers', $this->Times->Customers->find('list'));
 
-		if ($this->groupid == 1 && $user == null) {
+		if ($this->groupid == 1 && !$user) {
 			$this->set('times', $this->Times->find('all', ['order' => 'start DESC']));
-		} elseif ($this->groupid == 1 && $user != null) {
+		} elseif ($this->groupid == 1 && $user) {
 			$this->set('times', $this->Times->find('all', ['conditions' => "Times.user_id = $user", 'order' => 'start DESC']));
 		} else {
 			$this->set(

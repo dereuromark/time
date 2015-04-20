@@ -15,11 +15,6 @@
 		echo $this->Form->create(
 			$time,
 			[
-				'url' => [
-					'action' => 'edit',
-					$this->request->data['Time']['id']
-				],
-				'method' => 'post',
 				'class' => 'form-horizontal'
 			]
 		); ?>
@@ -36,18 +31,14 @@
 			'task',
 			['label' => 'Aufgabenbereich', 'options' => $abteilungen, 'type' => 'select']
 		); ?>
-		<?php echo $this->Form->input('note', ['label' => 'Notiz']); ?>
+		<?php echo $this->Form->input('note', ['type' => 'textarea', 'label' => 'Notiz']); ?>
 
 		<?php echo $this->Form->input('id', ['type' => 'hidden']); ?>
 		<?php echo $this->Form->input('user_id', ['type' => 'hidden']); ?>
-
-		<?php echo $this->Form->end(
-			[
-				'label' => 'Speichern',
-				'div' => false,
-				'class' => 'btn btn-success pull-right',
-			]
-		);    ?>
+		<?php echo $this->Form->submit('Speichern', [
+			'class' => 'btn btn-success pull-right',
+		]);    ?>
+		<?php echo $this->Form->end();    ?>
 
 	</div>
 </div>

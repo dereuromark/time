@@ -23,8 +23,7 @@
 					<?php echo $html->link(
 						'Delete',
 						'/customers/delete/' . $Customer['id'],
-						null,
-						'Are you sure you want to delete id ' . $Customer['id']
+						['confirm' => 'Are you sure you want to delete id ' . $Customer['id']]
 					) ?>
 				</td>
 			</tr>

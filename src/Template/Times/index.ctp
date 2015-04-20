@@ -1,6 +1,6 @@
 <?php
 
-if (!isset($startedTime)) {
+if (empty($startedTime)) {
 	?>
 	<h3 class="startbar-headline">Start Time</h3>
 	<?php echo $this->Form->create($time, ['action' => 'start', 'method' => 'post', 'class' => 'form-inline']); ?>
@@ -64,7 +64,7 @@ if (!isset($startedTime)) {
 	); ?>
 	<?php echo $this->Form->input(
 		'break',
-		['label' => false, 'div' => false, 'placeholder' => 'Pause', 'size' => '3', 'class' => 'input-small']
+		['type' => 'text', 'label' => false, 'div' => false, 'placeholder' => 'Pause', 'size' => '3', 'class' => 'input-small']
 	); ?>
 	<?php
 	echo $this->Form->submit('Stop', [
@@ -81,7 +81,7 @@ if (!isset($startedTime)) {
 
 <div class="row">
 	<div class="span10">
-		<table id="timetable" class=" table table-striped table-bordered table-condensed">
+		<table id="timetable" class="table table-striped table-bordered table-condensed">
 			<thead>
 			<tr>
 				<th>Datum</th>
@@ -117,20 +117,16 @@ if (!isset($startedTime)) {
 
 
 					<td class="actions right"><?php
-						if ($userid == $time->user['id'] && $time['start'] && strtotime($time['start']) - strtotime(
-								'-4 days'
-							) > 0
-						) {
+						if ($userid == $time->user['id'] && $time['start'] && $time['start']->addDays(4)->timestamp > time()) {
 							echo $this->Html->link(
-									'<i class="icon-pencil"></i>',
+									'<i class="glyphicon glyphicon-pencil"></i>',
 									'/times/edit/' . $time['id'],
 									['class' => 'btn btn-mini', 'escape' => false]
 								) . ' ';
 							echo $this->Html->link(
-								'<i class="icon-remove"></i>',
+								'<i class="glyphicon glyphicon-remove"></i>',
 								'/times/delete/' . $time['id'],
-								['class' => 'btn btn-mini', 'escape' => false],
-								'Are you sure you want to delete id ' . $time['id']
+								['class' => 'btn btn-mini', 'escape' => false, 'confirm' => 'Are you sure you want to delete id ' . $time['id']]
 							);
 						}
 						?>
@@ -139,7 +135,7 @@ if (!isset($startedTime)) {
 				<tr class="border <?php echo 'individualEntry' . $time->user['id']; ?>">
 					<td colspan=7><?php echo $this->Html->link(
 							$time->customer['name'],
-							'/times/index/customer_id:' . $time->customer['id']
+							['controller' => 'Times', 'action' => 'index', '?' => ['customer_id' => $time->customer['id']]]
 						); ?>
 						| <?php if (!empty($time['task'])) {
 							echo '<b>' . $time['task'] . ': </b>';

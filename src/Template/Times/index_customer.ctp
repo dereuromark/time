@@ -132,8 +132,8 @@ if (!isset($startedTime)) {
 			<td><?php echo substr($time['stop'], 10, 6); ?></td>
 			<td><?php echo $time['break']; ?></td>
 			<?
-			if ($time['stop'] == '0000-00-00 00:00:00') {
-				$time['stop'] = date('Y-m-d H:i:s');
+			if (!$time['stop']) {
+				$time['stop'] = new \Cake\I18n\Time(); //date('Y-m-d H:i:s');
 			}
 			$time['startsec'] = mktime(
 				substr($time['start'], 11, 2),
@@ -164,8 +164,7 @@ if (!isset($startedTime)) {
 					echo $html->link(
 						'x',
 						'/times/delete/' . $time['id'],
-						null,
-						'Are you sure you want to delete id ' . $time['id']
+						['confirm' => 'Are you sure you want to delete id ' . $time['id']]
 					);
 				}
 				?>
