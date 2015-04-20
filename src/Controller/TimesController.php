@@ -157,17 +157,14 @@ class TimesController extends AppController {
 		$this->request->data['start'] = new \Cake\I18n\Time();
 		$this->request->data['break'] = 0;
 
+		$url = ['controller' => 'Times', 'action' => 'index', '?' => ['task' => $this->request->data('task')]];
 		$entity = $this->Times->patchEntity($time, $this->request->data);
 		if ($this->Times->save($entity)) {
 			$this->Flash->success('Started, Wohoo!');
-			return $this->redirect('/times/index');
-		} else {
-			$this->Flash->error('Please correct errors below.');
-			//$this->set('users', $this->Times->Users->find('list'));
-			//$this->set('customers', $this->Times->Customers->find('list'));
-			return $this->redirect('/times/index');
+			return $this->redirect($url);
 		}
-		//$this->set(compact('time'));
+		$this->Flash->error('Please correct errors below.');
+		return $this->redirect($url);
 	}
 
 	public function stop() {
@@ -184,15 +181,14 @@ class TimesController extends AppController {
 
 		$this->request->data['stop'] = new \Cake\I18n\Time();
 		$time = $this->Times->patchEntity($time, $this->request->data);
+
+		$url = ['controller' => 'Times', 'action' => 'index', '?' => ['task' => $this->request->data('task')]];
 		if ($this->Times->save($time)) {
 			$this->Flash->success('Stopped, Wohoo!');
-			return $this->redirect('/times/index');
-		} else {
-			$this->Flash->error('Please correct errors below.');
-			//$this->set('users', $this->Times->User->find('list'));
-			//$this->set('customers', $this->Times->Customers->find('list'));
-			return $this->redirect('/times/index');
+			return $this->redirect($url);
 		}
+		$this->Flash->error('Please correct errors below.');
+		return $this->redirect($url);
 	}
 
 	public function edit($id = null) {
