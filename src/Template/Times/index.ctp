@@ -22,11 +22,11 @@ if (empty($startedTime)) {
 	); ?>
 	<?php echo $this->Form->input(
 		'note',
-		['label' => false, 'div' => false, 'placeholder' => 'Tätigkeit', 'size' => '20', 'class' => 'input-medium']
+		['label' => false, 'div' => false, 'placeholder' => __('Task'), 'size' => '20', 'class' => 'input-medium']
 	); ?>
 	<?php echo $this->Form->input(
 		'break',
-		['type' => 'text', 'label' => false, 'div' => false, 'placeholder' => 'Pause', 'size' => '3', 'class' => 'input-small']
+		['type' => 'text', 'label' => false, 'div' => false, 'placeholder' => __('Break'), 'size' => '3', 'class' => 'input-small']
 	); ?>
 	<?php
 	echo $this->Form->input('Start', [
@@ -86,14 +86,14 @@ if (empty($startedTime)) {
 		<table id="timetable" class="table table-striped table-bordered table-condensed">
 			<thead>
 			<tr>
-				<th>Datum</th>
-				<th>User</th>
-				<th>Start</th>
-				<th>Stop</th>
-				<th>P.</th>
-				<th>Dauer</th>
+				<th><?php echo __('Date');?></th>
+				<th><?php echo __('User');?></th>
+				<th><?php echo __('Start');?></th>
+				<th><?php echo __('Stop');?></th>
+				<th><?php echo __('Break');?></th>
+				<th><?php echo __('Duration');?></th>
 
-				<th style="width:60px">Act</th>
+				<th style="width:60px"><?php echo __('Actions');?></th>
 			</tr>
 			</thead>
 			<tbody>
@@ -123,12 +123,12 @@ if (empty($startedTime)) {
 							echo $this->Html->link(
 									'<i class="glyphicon glyphicon-pencil"></i>',
 									'/times/edit/' . $time['id'],
-									['class' => 'btn btn-mini', 'escape' => false]
+									['class' => 'btn btn-xs btn-default', 'escape' => false]
 								) . ' ';
 							echo $this->Html->link(
 								'<i class="glyphicon glyphicon-remove"></i>',
 								'/times/delete/' . $time['id'],
-								['class' => 'btn btn-mini', 'escape' => false, 'confirm' => 'Are you sure you want to delete id ' . $time['id']]
+								['class' => 'btn btn-xs btn-default', 'escape' => false, 'confirm' => 'Are you sure you want to delete id ' . $time['id']]
 							);
 						}
 						?>
@@ -234,7 +234,7 @@ if (empty($startedTime)) {
 							<td><?php if (isset($customers[$cust_key])) {
 									echo $this->Html->link(
 										$customers[$cust_key],
-										'/times/index/customer_id:' . $cust_key
+										'/?customer_id=' . $cust_key
 									);
 								} ?>
 							</td>
