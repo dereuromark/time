@@ -107,7 +107,7 @@ if (empty($startedTime)) {
 							['controller' => 'times', 'action' => 'index', '?' => ['user_id' => $time->user['id']]]); ?></td>
 					<td><?php echo $this->Time->format($time['start'], 'HH:mm'); ?></td>
 					<td><?php echo $this->Time->format($time['stop'], 'HH:mm'); ?></td>
-					<td><?php echo $time['break']; ?></td>
+					<td><?php echo \Tools\Utility\Time::buildTime($time['break'] * HOUR); ?></td>
 					<?php
 					if ($time['stop']) {
 						$diff = $time['stop']->diffInSeconds($time['start']) - 3600 * $time['break'];
@@ -115,7 +115,7 @@ if (empty($startedTime)) {
 						$diff = 0;
 					}
 					?>
-					<td><?php echo round($diff / 3600, 2); ?></td>
+					<td><?php echo \Tools\Utility\Time::buildTime($diff); ?></td>
 
 
 					<td class="actions right"><?php
